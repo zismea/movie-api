@@ -19,3 +19,18 @@ TimeStamp: Sat Oct 19 2024 14:57:06 GMT+0200 (czas środkowoeuropejski letni)
 URL: /favicon.ico
 TimeStamp: Sat Oct 19 2024 14:57:06 GMT+0200 (czas środkowoeuropejski letni)
 
+
+kacpz@DESKTOP-NSA9120 MINGW64 ~/OneDrive/Pulpit/movie-api (main)
+$ node index.js
+My app is running on port 8080.
+::1 - - [27/Oct/2024:15:55:20 +0000] "GET /movies HTTP/1.1" 200 353
+::1 - - [27/Oct/2024:16:00:00 +0000] "GET /movies/teorema HTTP/1.1" 200 56
+::1 - - [27/Oct/2024:16:01:11 +0000] "GET /genres/teorema HTTP/1.1" 200 49
+::1 - - [27/Oct/2024:16:01:28 +0000] "GET /directors/davidlynch HTTP/1.1" 200 52::1 - - [27/Oct/2024:16:01:55 +0000] "GET /users/register HTTP/1.1" 404 153
+::1 - - [27/Oct/2024:16:02:22 +0000] "POST /users/register HTTP/1.1" 200 47
+::1 - - [27/Oct/2024:16:03:37 +0000] "PUT /users/kacper HTTP/1.1" 200 50
+::1 - - [27/Oct/2024:16:04:01 +0000] "POST /users/kacper/favorites HTTP/1.1" 200 68
+::1 - - [27/Oct/2024:16:04:33 +0000] "DELETE /users/kacper/favorites/goodwillhunting HTTP/1.1" 200 73
+::1 - - [27/Oct/2024:16:04:53 +0000] "DELETE /users/kacper/ HTTP/1.1" 200 57
+
+
