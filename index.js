@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const uuid = require('uuid');
+const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
 const Models = require('./models.js');
@@ -8,63 +9,17 @@ const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User;
 
-mongoose.connect('mongodb://localhost:27017/myMovieDatab', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/MDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan('combined'));
 
 app.use(express.static('public'));
-
-let movies = [
-    { 
-        "Title": 'Blue Velvet', 
-        "Year": '1986',
-
-      "Director": {
-        "Name": 'David Lynch'},
-
-      "Genre": {
-        "Name": 'Drama'},
-      },
-
-    { 
-        "Title": 'Teorema',
-        "Year": '1968',
-
-      "Director": {
-        "Name": 'Pier Paolo Pasolini'},
-
-      "Genre": {
-        "Name": 'Drama'},
-      },
-
-    { 
-        "Title": 'Possession', 
-        "Year": '1980',
-
-      "Director": {
-        "Name": 'Andrzej Zulawski'},
-
-      "Genre": {
-        "Name": 'Horror'},
-      }
-];
-
-let users = [
-    {
-        "id": 1,
-        "name": 'Tilda Swinton',
-        "favoriteMovies": ['Teorema']
-    },
-    {
-        "id": 2,
-        "name": 'Willem Dafoe',
-        "favoriteMovies": ['Possession']
-    },
-];
 
 // CREATE
 app.post('/users', async (req, res) => {
@@ -151,21 +106,21 @@ app.post('/users', async (req, res) => {
             });
     });
     
-    app.get('/movies/genre/:genreName', async (req, res) => {
-        await Movies.findOne({ "Genre.Name": req.params.genre })
-        .then((movie) => {
-            res.json(director);
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).send('Error: ' + err);
-        })
+    app.get('/movies/genres/:genreName', async (req, res) => {
+        await Movies.find({ 'Genre.Name': req.params.genreName })
+            .then((movies) => {
+                res.json(movies);
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send('Error: ' + err);
+            });
     });
     
     app.get('/movies/directors/:directorName', async (req, res) => {
-        await Movies.findOne({ "Director.Name": req.params.directorName })
-        .then((movie) => {
-            res.json(movie);
+        await Movies.find({ 'Director.Name': req.params.directorName })
+        .then((movies) => {
+            res.json(movies);
         })
         .catch((err) => {
             console.error(err);
