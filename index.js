@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const uuid = require('uuid');
 const app = express();
+const { check, validationResult } = require('express-validator');
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -9,6 +10,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined'));
 app.use(express.static('public'));
+const cors = require('cors');
+app.use(cors());
 let auth = require('./auth')(app);
 const passport = require('passport');
 require('./passport');
@@ -21,34 +24,51 @@ const Users = Models.User;
 mongoose.connect('mongodb://localhost:27017/MDB');
 
     // CREATE
-app.post('/users', async (req, res) => {
-    await Users.findOne({ Username: req.body.Username })
-        .then((user) => {
-            if (user) {
-                return res
-                    .status(400)
-                    .send(req.body.Username + ' already exists.');
-            } else {
-                Users.create({
-                    Username: req.body.Username,
-                    Password: req.body.Password,
-                    Email: req.body.Email,
-                    Birthday: req.body.Birthday,
-                })
-                    .then((user) => {
-                        res.status(201).json(user);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        res.status(500).send('Error: ' + error);
-                    });
+    app.post('/users/',
+        [
+            check('Username', 'Username is required').isLength({ min: 5 }),
+            check(
+                'Username',
+                'Username contains non alphanumeric characters - not allowed!'
+            ).isAlphanumeric(),
+            check('Password', 'Password is required').not().isEmpty(),
+            check('Email', 'Email does not appear to be valid').isEmail(),
+        ],
+        async (req, res) => {
+            // Check the validation object for errors
+            let errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({ errors: errors.array() });
             }
-        })
-        .catch((error) => {
-            console.error(error);
-            res.status(500).send('Error: ' + error);
-        });
-});
+            let hashedPassword = Users.hashPassword(req.body.Password);
+            await Users.findOne({ Username: req.body.Username })
+                .then((user) => {
+                    if (user) {
+                        return res
+                            .status(400)
+                            .send(req.body.Username + ' already exists.');
+                    } else {
+                        Users.create({
+                            Username: req.body.Username,
+                            Password: hashedPassword,
+                            Email: req.body.Email,
+                            Birthday: req.body.Birthday,
+                        })
+                        .then((user) => {
+                            res.status(201).json(user);
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                            res.status(500).send('Error: ' + error);
+                        });
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
+            });
+    }
+);
 
 // UPDATE
 app.put('/users/:Username',
@@ -80,7 +100,7 @@ app.put('/users/:Username',
     }
 });
 
-app.post('/users/:Username/favorites',
+app.post('/users/:Username/favorites/:MovieID',
     passport.authenticate('jwt', {session: false}),
     async (req, res) => {
         if (
@@ -88,7 +108,7 @@ app.post('/users/:Username/favorites',
         ) {
             await Users.findOneAndUpdate(
                 {Username: req.params.Username},
-                {$push: {FavoriteMovies: req.body.FavoriteMovies}},
+                {$push: {FavoriteMovies: req.params.MovieID}},
                 {new: true}
             )
             .then((updatedUser) => {
@@ -162,7 +182,7 @@ app.get('/movies/directors/:directorName',
 );
 
 // DELETE
-app.delete('/users/:Username/favorites',
+app.delete('/users/:Username/favorites/:MovieID',
     passport.authenticate('jwt', {session: false}),
     async (req, res) => {
         if (
@@ -170,7 +190,7 @@ app.delete('/users/:Username/favorites',
         ) {
             await Users.findOneAndUpdate(
                 {Username: req.params.Username},
-                {$pull: {FavoriteMovies: req.body.FavoriteMovies}},
+                {$pull: {FavoriteMovies: req.params.MovieID}},
                 {new: true}
             )
             .then((updatedUser) => {
@@ -209,6 +229,7 @@ app.delete('/users/:Username',
     }
 );
 
-app.listen(8080, () => {
-    console.log('Your app is listening on port 8080.');
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0', () => {
+    console.log('My app is running on port ' + port);
 });
