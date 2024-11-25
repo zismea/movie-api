@@ -21,10 +21,10 @@ const Models = require('./models.js');
 
 const Movies = Models.Movie;
 const Users = Models.User;
-mongoose.connect('mongodb://localhost:27017/MDB');
+mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
     // CREATE
-    app.post('/users/',
+    app.post('/users/register',
         [
             check('Username', 'Username is required').isLength({ min: 5 }),
             check(
@@ -35,7 +35,6 @@ mongoose.connect('mongodb://localhost:27017/MDB');
             check('Email', 'Email does not appear to be valid').isEmail(),
         ],
         async (req, res) => {
-            // Check the validation object for errors
             let errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(422).json({ errors: errors.array() });
