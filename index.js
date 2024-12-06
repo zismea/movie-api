@@ -141,7 +141,6 @@ app.get('/', (req, res) => {
   
   // READ
   app.get('/movies',
-      passport.authenticate('jwt', {session: false}),
       async (req, res) => {
           await Movies.find()
               .then((movies) => {
@@ -154,7 +153,6 @@ app.get('/', (req, res) => {
       });
   
   app.get('/movies/:Title',
-      passport.authenticate('jwt', {session: false}),
       async (req, res) => {
           await Movies.findOne({Title: req.params.Title})
               .then((movie) => {
@@ -171,7 +169,6 @@ app.get('/', (req, res) => {
       });
   
   app.get('/movies/genres/:genreName',
-      passport.authenticate('jwt', {session: false}),
       async (req, res) => {
           await Movies.find({'Genre.Name': req.params.genreName})
           .then((movies) => {
@@ -184,7 +181,6 @@ app.get('/', (req, res) => {
       });
   
   app.get('/movies/directors/:directorName',
-      passport.authenticate('jwt', {session: false}),
       async (req, res) => {
           await Movies.find({'Director.Name': req.params.directorName})
           .then((movies) => {
