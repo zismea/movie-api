@@ -7,16 +7,16 @@ const mongoose = require('mongoose');
 const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User;
+const cors = require('cors');
 const { check, validationResult } = require('express-validator');
 
-mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://zismea:Ksh2Cxs4@zismea.qcmay.mongodb.net/?retryWrites=true&w=majority&appName=zismea', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Middleware to log all requests and parse JSON
 app.use(morgan('common'));
 app.use(bodyParser());
 
 // Run CORS
-const cors = require('cors');
 app.use(cors());
 let allowedOrigins = ['http://localhost:1234', 'http://testsite.com'];
 
