@@ -18,7 +18,7 @@ app.use(bodyParser());
 
 // Run CORS
 app.use(cors());
-let allowedOrigins = ['http://localhost:1234', 'http://testsite.com'];
+let allowedOrigins = ['http://localhost:1234', 'https://thawing-shore-57130-3839bdb5f582.herokuapp.com/movies'];
 
 app.use(cors({
   origin: (origin, callback) => {
