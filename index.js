@@ -18,6 +18,18 @@ app.use(bodyParser());
 // Run CORS
 const cors = require('cors');
 app.use(cors());
+let allowedOrigins = ['http://localhost:1234', 'http://testsite.com'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
+      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      return callback(new Error(message ), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 // Require Authentication Logic 
 let auth = require('./auth')(app);
@@ -231,7 +243,7 @@ app.get('/', (req, res) => {
   );
   
 // Start the server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 1234;
 app.listen(port, '0.0.0.0', () => {
     console.log('My app is running on port ' + port);
 });
